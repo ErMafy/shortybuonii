@@ -14,14 +14,14 @@ class Config:
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Email — accepts both MAIL_* and EMAIL_* env var names
+    # Email — accepts all common env var name variants
     MAIL_SERVER = os.environ.get('MAIL_SERVER', os.environ.get('EMAIL_SERVER', 'smtp.gmail.com'))
     MAIL_PORT = int(os.environ.get('MAIL_PORT', os.environ.get('EMAIL_PORT', 587)))
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', os.environ.get('EMAIL_USE_TLS', '1')) == '1'
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', os.environ.get('EMAIL_USE_TLS', '1')).lower() in ('1', 'true', 'yes')
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME', os.environ.get('EMAIL_USER', ''))
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', os.environ.get('EMAIL_PASS', ''))
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME', os.environ.get('EMAIL_USER', ''))
-    MAIL_TIMEOUT = 10  # 10 second timeout to prevent worker kill
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', os.environ.get('MAIL_PASS', os.environ.get('EMAIL_PASS', '')))
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', os.environ.get('MAIL_USERNAME', os.environ.get('EMAIL_USER', '')))
+    MAIL_TIMEOUT = 10
 
     # App
     APP_NAME = os.environ.get('APP_NAME', 'Shorty Shop Voucher Manager')

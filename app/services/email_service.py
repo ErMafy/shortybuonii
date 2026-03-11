@@ -1,4 +1,5 @@
 import logging
+import os
 import smtplib
 import base64
 import json
@@ -110,16 +111,15 @@ def send_voucher_email(voucher, store):
         cfg = current_app.config
         pdf_bytes = generate_voucher_pdf(voucher, store)
 
-        # Prefer Resend API (works on Render)
-        resend_key = cfg.get('RESEND_API_KEY', '')
-        if resend_key:
-            from_email = cfg.get('RESEND_FROM', 'Shorty Shop <onboarding@resend.dev>')
-            success, err = _send_via_resend(voucher, store, pdf_bytes, resend_key, from_email)
-            if success:
-                return True, None
-            logger.warning(f'Resend failed, trying SMTP: {err}')
+        # Prefer Resend API (works on Render where SMTP is blocked)
+        resend_key = cfg.get('RESEND_API_KEY', '') or os.environ.get('RESEND_API_KEY', '')
+        logger.info(f'Email method: {"RESEND" if resend_key else "SMTP"} (key present: {bool(resend_key)})')
 
-        # Fallback to SMTP
+        if resend_key:
+            from_email = cfg.get('RESEND_FROM', os.environ.get('RESEND_FROM', 'Shorty Shop <onboarding@resend.dev>'))
+            return _send_via_resend(voucher, store, pdf_bytes, resend_key, from_email)
+
+        # Fallback to SMTP (only works locally)
         return _send_via_smtp(voucher, store, pdf_bytes, cfg)
 
     except smtplib.SMTPAuthenticationError:

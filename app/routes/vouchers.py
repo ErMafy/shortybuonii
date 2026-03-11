@@ -127,14 +127,18 @@ def voucher_new():
         db.session.add(voucher)
         db.session.commit()
 
-        # Send email if requested
+        # Send email if requested (wrapped to never crash voucher creation)
         email_msg = ''
         if send_email and voucher.email:
-            success, err = send_voucher_email(voucher, store)
-            if success:
-                email_msg = 'Email inviata con successo.'
-            else:
-                email_msg = f'Voucher creato ma invio email fallito: {err}'
+            try:
+                success, err = send_voucher_email(voucher, store)
+                if success:
+                    email_msg = 'Email inviata con successo.'
+                else:
+                    email_msg = f'Voucher creato ma invio email fallito: {err}'
+                    flash(email_msg, 'warning')
+            except Exception as e:
+                email_msg = f'Voucher creato ma invio email fallito: {e}'
                 flash(email_msg, 'warning')
 
         flash(f'Voucher {voucher.voucher_code} creato con successo! {email_msg}', 'success')

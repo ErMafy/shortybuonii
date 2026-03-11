@@ -16,8 +16,9 @@ class Config:
 
     # Email — accepts all common env var name variants
     MAIL_SERVER = os.environ.get('MAIL_SERVER', os.environ.get('EMAIL_SERVER', 'smtp.gmail.com'))
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', os.environ.get('EMAIL_PORT', 587)))
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', os.environ.get('EMAIL_USE_TLS', '1')).lower() in ('1', 'true', 'yes')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', os.environ.get('EMAIL_PORT', 465)))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', os.environ.get('EMAIL_USE_TLS', '0')).lower() in ('1', 'true', 'yes')
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', '1').lower() in ('1', 'true', 'yes')
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME', os.environ.get('EMAIL_USER', ''))
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', os.environ.get('MAIL_PASS', os.environ.get('EMAIL_PASS', '')))
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', os.environ.get('MAIL_USERNAME', os.environ.get('EMAIL_USER', '')))

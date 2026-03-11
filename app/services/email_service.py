@@ -19,9 +19,10 @@ def send_voucher_email(voucher, store):
         smtp_user = cfg.get('MAIL_USERNAME', '')
         smtp_pass = cfg.get('MAIL_PASSWORD', '')
         smtp_server = cfg.get('MAIL_SERVER', 'smtp.gmail.com')
-        smtp_port = cfg.get('MAIL_PORT', 587)
-        use_tls = cfg.get('MAIL_USE_TLS', True)
-        timeout = cfg.get('MAIL_TIMEOUT', 10)
+        smtp_port = cfg.get('MAIL_PORT', 465)
+        use_tls = cfg.get('MAIL_USE_TLS', False)
+        use_ssl = cfg.get('MAIL_USE_SSL', True)
+        timeout = cfg.get('MAIL_TIMEOUT', 15)
 
         if not smtp_user or not smtp_pass:
             return False, 'Credenziali email non configurate'
@@ -52,10 +53,13 @@ def send_voucher_email(voucher, store):
                             filename=f'voucher_{voucher.voucher_code}.pdf')
         msg.attach(pdf_part)
 
-        # Send with timeout
-        server = smtplib.SMTP(smtp_server, smtp_port, timeout=timeout)
-        if use_tls:
-            server.starttls()
+        # Send with timeout — use SSL (port 465) or STARTTLS (port 587)
+        if smtp_port == 465 or use_ssl:
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=timeout)
+        else:
+            server = smtplib.SMTP(smtp_server, smtp_port, timeout=timeout)
+            if use_tls:
+                server.starttls()
         server.login(smtp_user, smtp_pass)
         server.send_message(msg)
         server.quit()

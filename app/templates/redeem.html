@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Verifica Voucher{% endblock %}
+{% block page_title %}Verifica Voucher{% endblock %}
+
+{% block content %}
+<div class="redeem-card">
+    <div class="card">
+        {% if status == 'not_found' %}
+        <!-- Not Found -->
+        <div class="redeem-status">
+            <div class="status-icon not-found">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h2>Voucher non trovato</h2>
+            <p>Il codice o il QR non corrisponde a nessun voucher nel sistema.</p>
+        </div>
+
+        {% elif status == 'active' %}
+        <!-- Active — Ready to Redeem -->
+        <div class="redeem-status">
+            <div class="status-icon active">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Voucher Valido</h2>
+            <p>Questo voucher è attivo e può essere utilizzato.</p>
+        </div>
+        <div class="redeem-info-list">
+            <div class="redeem-info-row">
+                <span class="label">Cliente</span>
+                <span class="value">{{ voucher.first_name }} {{ voucher.last_name }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Negozio</span>
+                <span class="value">{{ store.name }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Codice</span>
+                <span class="value" style="font-family: monospace; font-weight: 700; color: var(--primary);">
+                    {{ voucher.voucher_code }}
+                </span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Importo</span>
+                <span class="value amount-display" style="font-size: 1.3rem;">
+                    &euro; {{ "%.2f"|format(voucher.amount) }}
+                </span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Creato il</span>
+                <span class="value">{{ voucher.created_at.strftime('%d/%m/%Y') if voucher.created_at else '-' }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Scadenza</span>
+                <span class="value">{{ voucher.expires_at.strftime('%d/%m/%Y') if voucher.expires_at else '-' }}</span>
+            </div>
+        </div>
+        <div class="redeem-action">
+            <form method="POST" action="{{ url_for('redeem.redeem_confirm', redeem_token=voucher.redeem_token) }}">
+                <button type="submit" class="btn btn-success btn-lg btn-block"
+                        onclick="return confirm('Confermi di voler segnare questo voucher come UTILIZZATO?')">
+                    <i class="fas fa-check-double"></i> Segna come Utilizzato
+                </button>
+            </form>
+        </div>
+
+        {% elif status == 'used' %}
+        <!-- Used -->
+        <div class="redeem-status">
+            <div class="status-icon used">
+                <i class="fas fa-ban"></i>
+            </div>
+            <h2>Voucher già utilizzato</h2>
+            <p>Questo voucher è stato già riscattato e non può essere usato di nuovo.</p>
+        </div>
+        <div class="redeem-info-list">
+            <div class="redeem-info-row">
+                <span class="label">Cliente</span>
+                <span class="value">{{ voucher.first_name }} {{ voucher.last_name }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Negozio</span>
+                <span class="value">{{ store.name }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Codice</span>
+                <span class="value" style="font-family: monospace; font-weight: 700;">{{ voucher.voucher_code }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Importo</span>
+                <span class="value">&euro; {{ "%.2f"|format(voucher.amount) }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Utilizzato il</span>
+                <span class="value">{{ voucher.used_at.strftime('%d/%m/%Y %H:%M') if voucher.used_at else '-' }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Utilizzato da</span>
+                <span class="value">{{ voucher.used_by.name if voucher.used_by else '-' }}</span>
+            </div>
+        </div>
+
+        {% elif status == 'expired' %}
+        <!-- Expired -->
+        <div class="redeem-status">
+            <div class="status-icon expired">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            <h2>Voucher scaduto</h2>
+            <p>Questo voucher ha superato la data di scadenza e non è più valido.</p>
+        </div>
+        <div class="redeem-info-list">
+            <div class="redeem-info-row">
+                <span class="label">Cliente</span>
+                <span class="value">{{ voucher.first_name }} {{ voucher.last_name }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Negozio</span>
+                <span class="value">{{ store.name }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Codice</span>
+                <span class="value" style="font-family: monospace;">{{ voucher.voucher_code }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Importo</span>
+                <span class="value">&euro; {{ "%.2f"|format(voucher.amount) }}</span>
+            </div>
+            <div class="redeem-info-row">
+                <span class="label">Scaduto il</span>
+                <span class="value">{{ voucher.expires_at.strftime('%d/%m/%Y') if voucher.expires_at else '-' }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

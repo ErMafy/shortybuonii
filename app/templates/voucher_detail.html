@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Voucher {{ voucher.voucher_code }}{% endblock %}
+{% block page_title %}Dettaglio Voucher{% endblock %}
+
+{% block content %}
+<div class="voucher-detail-grid">
+    <!-- Left: Voucher Info -->
+    <div>
+        <div class="card mb-3">
+            <div class="card-header">
+                <h2>
+                    <i class="fas fa-ticket-alt"></i>
+                    {{ voucher.voucher_code }}
+                </h2>
+                {% set eff = voucher.effective_status %}
+                <span class="badge badge-{{ eff }}">
+                    {% if eff == 'active' %}<i class="fas fa-check-circle"></i> Attivo
+                    {% elif eff == 'used' %}<i class="fas fa-gift"></i> Utilizzato
+                    {% else %}<i class="fas fa-clock"></i> Scaduto
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="voucher-info-list">
+                    <div class="info-item">
+                        <div class="info-label">Nome</div>
+                        <div class="info-value">{{ voucher.first_name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Cognome</div>
+                        <div class="info-value">{{ voucher.last_name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ voucher.email or '—' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Telefono</div>
+                        <div class="info-value">{{ voucher.phone or '—' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Negozio</div>
+                        <div class="info-value">{{ store.name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Importo</div>
+                        <div class="info-value amount-display">&euro; {{ "%.2f"|format(voucher.amount) }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Data Creazione</div>
+                        <div class="info-value">{{ voucher.created_at.strftime('%d/%m/%Y %H:%M') if voucher.created_at else '-' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Data Scadenza</div>
+                        <div class="info-value">{{ voucher.expires_at.strftime('%d/%m/%Y') if voucher.expires_at else '-' }}</div>
+                    </div>
+                    {% if voucher.status == 'used' %}
+                    <div class="info-item">
+                        <div class="info-label">Utilizzato il</div>
+                        <div class="info-value">{{ voucher.used_at.strftime('%d/%m/%Y %H:%M') if voucher.used_at else '-' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Utilizzato da</div>
+                        <div class="info-value">{{ voucher.used_by.name if voucher.used_by else '-' }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="info-item">
+                        <div class="info-label">Creato da</div>
+                        <div class="info-value">{{ voucher.created_by.name if voucher.created_by else '-' }}</div>
+                    </div>
+                    {% if voucher.notes %}
+                    <div class="info-item full-width">
+                        <div class="info-label">Note</div>
+                        <div class="info-value">{{ voucher.notes }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="voucher-actions">
+            <a href="{{ url_for('vouchers.voucher_pdf', voucher_code=voucher.voucher_code) }}"
+               class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Scarica PDF
+            </a>
+            {% if voucher.email %}
+            <form method="POST"
+                  action="{{ url_for('vouchers.voucher_send_email', voucher_code=voucher.voucher_code) }}"
+                  style="display: inline;">
+                <button type="submit" class="btn btn-accent">
+                    <i class="fas fa-envelope"></i> Invia Email
+                </button>
+            </form>
+            {% endif %}
+            {% if voucher.effective_status == 'active' %}
+            <a href="{{ url_for('redeem.redeem_page', redeem_token=voucher.redeem_token) }}"
+               class="btn btn-success">
+                <i class="fas fa-check-double"></i> Verifica / Riscatta
+            </a>
+            {% endif %}
+            <a href="{{ url_for('vouchers.voucher_list') }}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> Torna alla lista
+            </a>
+        </div>
+    </div>
+
+    <!-- Right: QR Code -->
+    <div>
+        <div class="card voucher-qr-card">
+            <div class="card-body text-center">
+                <h3 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-light); letter-spacing: 1px; margin-bottom: 4px;">
+                    QR Code
+                </h3>
+                <div class="voucher-code-display">{{ voucher.voucher_code }}</div>
+                <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR Code Voucher {{ voucher.voucher_code }}">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
+                    Scansiona il QR per verificare il voucher
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

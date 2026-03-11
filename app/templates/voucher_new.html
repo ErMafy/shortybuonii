@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Nuovo Voucher{% endblock %}
+{% block page_title %}Crea Nuovo Voucher{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px;">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-plus-circle"></i> Nuovo Voucher</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('vouchers.voucher_new') }}">
+                <div class="section-heading mb-3">
+                    <h2>Dati Cliente</h2>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="first_name">Nome *</label>
+                        <input type="text" id="first_name" name="first_name" class="form-input"
+                               placeholder="Mario" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="last_name">Cognome *</label>
+                        <input type="text" id="last_name" name="last_name" class="form-input"
+                               placeholder="Rossi" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email <span class="optional">(facoltativa)</span></label>
+                        <input type="email" id="email" name="email" class="form-input"
+                               placeholder="mario.rossi@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="phone">Telefono <span class="optional">(facoltativo)</span></label>
+                        <input type="tel" id="phone" name="phone" class="form-input"
+                               placeholder="+39 333 1234567">
+                    </div>
+                </div>
+
+                <div class="section-heading mb-3 mt-3">
+                    <h2>Dettagli Voucher</h2>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="store_id">Negozio *</label>
+                    <select id="store_id" name="store_id" class="form-select" required>
+                        <option value="">— Seleziona negozio —</option>
+                        {% for store in stores %}
+                        <option value="{{ store.id }}">{{ store.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="amount">Importo (€) *</label>
+                        <input type="number" id="amount" name="amount" class="form-input"
+                               placeholder="50.00" step="0.01" min="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="expires_at">Data Scadenza *</label>
+                        <input type="date" id="expires_at" name="expires_at" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="notes">Note interne <span class="optional">(facoltative)</span></label>
+                    <textarea id="notes" name="notes" class="form-textarea"
+                              placeholder="Eventuali note per lo staff..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-checkbox" id="send-email-wrapper" style="display: none;">
+                        <input type="checkbox" id="send_email" name="send_email" value="1">
+                        <label for="send_email">Invia voucher via email al cliente</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-magic"></i> Genera Voucher
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show send email checkbox only when email is filled
+    const emailInput = document.getElementById('email');
+    const sendWrapper = document.getElementById('send-email-wrapper');
+    emailInput.addEventListener('input', function() {
+        sendWrapper.style.display = this.value.trim() ? 'flex' : 'none';
+    });
+
+    // Set min date to today
+    const expiresInput = document.getElementById('expires_at');
+    const today = new Date().toISOString().split('T')[0];
+    expiresInput.setAttribute('min', today);
+</script>
+{% endblock %}

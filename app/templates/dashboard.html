@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fas fa-ticket-alt"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ total }}</h3>
+            <p>Totale Voucher</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ active }}</h3>
+            <p>Attivi</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-gift"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ used }}</h3>
+            <p>Utilizzati</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ expired }}</h3>
+            <p>Scaduti</p>
+        </div>
+    </div>
+</div>
+
+<!-- Store Stats -->
+<div class="section-heading">
+    <h2>Statistiche per Negozio</h2>
+    <p>Panoramica voucher per ciascun punto vendita</p>
+</div>
+<div class="store-grid">
+    {% for store in store_stats %}
+    <div class="store-card">
+        <h3>
+            {% if store.slug == 'uomo' %}<i class="fas fa-male"></i>
+            {% elif store.slug == 'woman' %}<i class="fas fa-female"></i>
+            {% else %}<i class="fas fa-heart"></i>
+            {% endif %}
+            {{ store.name }}
+        </h3>
+        <div class="store-stats">
+            <div class="store-stat">
+                <span class="number">{{ store.total }}</span>
+                <span class="label">Totale</span>
+            </div>
+            <div class="store-stat">
+                <span class="number">{{ store.active }}</span>
+                <span class="label">Attivi</span>
+            </div>
+            <div class="store-stat">
+                <span class="number">{{ store.used }}</span>
+                <span class="label">Utilizzati</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

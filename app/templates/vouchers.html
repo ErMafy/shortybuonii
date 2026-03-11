@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Lista Voucher{% endblock %}
+{% block page_title %}Voucher{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('vouchers.voucher_list') }}">
+            <div class="filters-bar">
+                <div class="form-group">
+                    <label class="form-label">Cerca</label>
+                    <input type="text" name="search" class="form-input" placeholder="Nome, cognome, codice, email..."
+                           value="{{ search }}">
+                </div>
+                <div class="form-group" style="min-width: 160px; flex: 0;">
+                    <label class="form-label">Negozio</label>
+                    <select name="store" class="form-select">
+                        <option value="">Tutti</option>
+                        {% for store in stores %}
+                        <option value="{{ store.id }}" {% if store_filter == store.id|string %}selected{% endif %}>
+                            {{ store.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="min-width: 140px; flex: 0;">
+                    <label class="form-label">Stato</label>
+                    <select name="status" class="form-select">
+                        <option value="">Tutti</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Attivi</option>
+                        <option value="used" {% if status_filter == 'used' %}selected{% endif %}>Utilizzati</option>
+                        <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Scaduti</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i> Filtra
+                </button>
+                <a href="{{ url_for('vouchers.voucher_list') }}" class="btn btn-ghost btn-sm">
+                    <i class="fas fa-times"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Voucher Table -->
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-ticket-alt"></i> Lista Voucher ({{ vouchers|length }})</h2>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        {% if vouchers %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Negozio</th>
+                        <th>Codice</th>
+                        <th>Importo</th>
+                        <th>Stato</th>
+                        <th>Creato il</th>
+                        <th>Scadenza</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for voucher in vouchers %}
+                    <tr>
+                        <td>
+                            <strong>{{ voucher.first_name }} {{ voucher.last_name }}</strong>
+                            {% if voucher.email %}
+                            <br><small style="color: var(--text-light);">{{ voucher.email }}</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ voucher.store.name }}</td>
+                        <td>
+                            <code style="font-weight: 700; color: var(--primary); font-size: 0.88rem;">
+                                {{ voucher.voucher_code }}
+                            </code>
+                        </td>
+                        <td><strong>&euro; {{ "%.2f"|format(voucher.amount) }}</strong></td>
+                        <td>
+                            {% set eff = voucher.effective_status %}
+                            <span class="badge badge-{{ eff }}">
+                                {% if eff == 'active' %}<i class="fas fa-check-circle"></i> Attivo
+                                {% elif eff == 'used' %}<i class="fas fa-gift"></i> Utilizzato
+                                {% else %}<i class="fas fa-clock"></i> Scaduto
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>{{ voucher.created_at.strftime('%d/%m/%Y') if voucher.created_at else '-' }}</td>
+                        <td>{{ voucher.expires_at.strftime('%d/%m/%Y') if voucher.expires_at else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('vouchers.voucher_detail', voucher_code=voucher.voucher_code) }}"
+                               class="btn btn-ghost btn-sm">
+                                <i class="fas fa-eye"></i> Dettagli
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-ticket-alt"></i>
+            <h3>Nessun voucher trovato</h3>
+            <p>{% if search or store_filter or status_filter %}Prova a modificare i filtri di ricerca.{% else %}Crea il tuo primo voucher!{% endif %}</p>
+            {% if not search and not store_filter and not status_filter %}
+            <a href="{{ url_for('vouchers.voucher_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Crea Voucher
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

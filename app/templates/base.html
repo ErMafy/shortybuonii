@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Shorty Shop{% endblock %} | Voucher Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <i class="fas fa-store"></i>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">Shorty Shop</span>
+                <span class="brand-sub">Voucher Manager</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('vouchers.voucher_list') }}" class="nav-link {% if request.endpoint and 'vouchers.' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Voucher</span>
+            </a>
+            <a href="{{ url_for('vouchers.voucher_new') }}" class="nav-link {% if request.endpoint == 'vouchers.voucher_new' %}active{% endif %}">
+                <i class="fas fa-plus-circle"></i>
+                <span>Nuovo Voucher</span>
+            </a>
+            <a href="{{ url_for('redeem.verify_manual') }}" class="nav-link {% if request.endpoint == 'redeem.verify_manual' %}active{% endif %}">
+                <i class="fas fa-qrcode"></i>
+                <span>Verifica Voucher</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-info">
+                <div class="admin-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="admin-meta">
+                    <span class="admin-name">{{ current_user.name }}</span>
+                    <span class="admin-role">{{ current_user.role }}</span>
+                </div>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link logout-link">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Esci</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-title">
+                <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            <div class="topbar-actions">
+                <a href="{{ url_for('vouchers.voucher_new') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Nuovo Voucher
+                </a>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+                {% if category == 'success' %}<i class="fas fa-check-circle"></i>
+                {% elif category == 'error' %}<i class="fas fa-exclamation-circle"></i>
+                {% elif category == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+                {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        <div class="content-area">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    {% else %}
+    <!-- Non-authenticated content (login page) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container flash-container-login">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">
+            {% if category == 'error' %}<i class="fas fa-exclamation-circle"></i>
+            {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% block content_public %}{% endblock %}
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Verifica Manuale{% endblock %}
+{% block page_title %}Verifica Voucher{% endblock %}
+
+{% block content %}
+<div class="verify-card">
+    <div class="card">
+        <div class="card-body">
+            <div class="verify-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h2>Verifica Manuale</h2>
+            <p>Inserisci il codice voucher per verificarne la validità.<br>Esempio: SSU-8K4P2X</p>
+
+            <form method="POST" action="{{ url_for('redeem.verify_manual') }}">
+                <div class="verify-form">
+                    <input type="text" name="voucher_code" class="form-input"
+                           placeholder="SSU-XXXXXX"
+                           value="{{ search_code if search_code else '' }}"
+                           required autofocus>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Verifica
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

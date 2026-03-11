@@ -24,6 +24,10 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', os.environ.get('MAIL_USERNAME', os.environ.get('EMAIL_USER', '')))
     MAIL_TIMEOUT = 10
 
+    # Resend API (works on Render free tier where SMTP is blocked)
+    RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+    RESEND_FROM = os.environ.get('RESEND_FROM', 'Shorty Shop <onboarding@resend.dev>')
+
     # App
     APP_NAME = os.environ.get('APP_NAME', 'Shorty Shop Voucher Manager')
     APP_URL = os.environ.get('APP_URL', 'http://localhost:5000')
